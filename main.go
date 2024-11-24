@@ -136,7 +136,7 @@ func (a *App) generateImages(prompt string) ([]string, error) {
 		AspectRatio:        "1:1",
 		OutputFormat:       "png",
 		OutputQuality:      1,
-		DisableSafetyCheck: false,
+		DisableSafetyCheck: true,
 	}
 
 	payload := map[string]interface{}{"input": input}
