@@ -56,7 +56,7 @@ func main() {
 
 func (a *App) setupUI() {
 	a.win = gtk.NewApplicationWindow(a.Application)
-	a.win.SetTitle("Flux Image Generator")
+	a.win.SetTitle("Fluxxxer")
 	a.win.SetDefaultSize(800, 600)
 
 	mainBox := gtk.NewBox(gtk.OrientationVertical, 10)
