@@ -9,7 +9,8 @@ A simple GTK4 desktop application for generating images using the Flux API. Buil
 - Clean, native GTK4 interface
 - Generate multiple images from text prompts
 - Real-time image generation progress feedback
-- Save generated images locally (Not yet implemented)
+- Save generated images locally
+- Copy generated images to clipboard
 - Supports 1:1 aspect ratio PNG outputs (TODO more aspect ratios)
 
 ## Prerequisites
@@ -54,6 +55,7 @@ go build -o fluxxxer
 2. Enter your prompt in the text field
 3. Click "Generate" to create images
 4. Use the "Save" button under each generated image to save it locally
+5. Use the "Copy" button under each generated image to copy it to your clipboard
 
 ## Development
 
