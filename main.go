@@ -7,6 +7,8 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"path/filepath"
+	"strings"
 
 	"github.com/diamondburned/gotk4/pkg/gdk/v4"
 	"github.com/diamondburned/gotk4/pkg/gio/v2"
@@ -187,7 +189,7 @@ func (a *App) displayImages(urls []string) {
 
 				saveBtn := gtk.NewButtonWithLabel("Save")
 				saveBtn.ConnectClicked(func() {
-					// TODO: Implement save functionality
+					a.saveImage(url)
 				})
 
 				imageBox.Append(picture)
@@ -197,6 +199,114 @@ func (a *App) displayImages(urls []string) {
 			})
 		}(url)
 	}
+}
+
+func (a *App) saveImage(url string) {
+	dialog := gtk.NewFileChooserNative(
+		"Save Image",
+		&a.win.Window,
+		gtk.FileChooserActionSave,
+		"_Save",
+		"_Cancel",
+	)
+
+	defaultName := filepath.Base(url)
+	if defaultName == "" || defaultName == "." {
+		defaultName = "generated_image.png"
+	}
+	dialog.SetCurrentName(defaultName)
+
+	filter := gtk.NewFileFilter()
+	filter.AddPattern("*.png")
+	filter.SetName("PNG images")
+	dialog.AddFilter(filter)
+
+	homeDir, err := os.UserHomeDir()
+	if err == nil {
+		picturesDir := filepath.Join(homeDir, "Pictures")
+		if _, err := os.Stat(picturesDir); err == nil {
+			gfile := gio.NewFileForPath(picturesDir)
+			dialog.SetCurrentFolder(gfile)
+		}
+	}
+
+	responseChan := make(chan int)
+	dialog.ConnectResponse(func(response int) {
+		responseChan <- response
+	})
+
+	dialog.Show()
+
+	go func() {
+		response := <-responseChan
+		if response == int(gtk.ResponseAccept) {
+			file := dialog.File()
+			if file == nil {
+				glib.IdleAdd(func() {
+					a.setStatus("Error: No file selected")
+				})
+				return
+			}
+
+			path := file.Path()
+
+			if !strings.HasSuffix(strings.ToLower(path), ".png") {
+				path += ".png"
+			}
+
+			go func() {
+				err := a.downloadAndSaveImage(url, path)
+				glib.IdleAdd(func() {
+					if err != nil {
+						a.setStatus(fmt.Sprintf("Error saving image: %v", err))
+					} else {
+						a.setStatus(fmt.Sprintf("Image saved to: %s", path))
+					}
+				})
+			}()
+		}
+
+		dialog.Destroy()
+	}()
+}
+
+func (a *App) downloadAndSaveImage(url, destPath string) error {
+	if err := os.MkdirAll(filepath.Dir(destPath), 0o755); err != nil {
+		return fmt.Errorf("failed to create directory: %w", err)
+	}
+
+	resp, err := http.Get(url)
+	if err != nil {
+		return fmt.Errorf("failed to download image: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("failed to download image: status code %d", resp.StatusCode)
+	}
+
+	tmpFile, err := os.CreateTemp(filepath.Dir(destPath), "*.png")
+	if err != nil {
+		return fmt.Errorf("failed to create temporary file: %w", err)
+	}
+	tmpPath := tmpFile.Name()
+
+	defer func() {
+		tmpFile.Close()
+		os.Remove(tmpPath)
+	}()
+
+	if _, err := io.Copy(tmpFile, resp.Body); err != nil {
+		return fmt.Errorf("failed to write image data: %w", err)
+	}
+
+	tmpFile.Close()
+
+	if err := os.Rename(tmpPath, destPath); err != nil {
+		return fmt.Errorf("failed to save image: %w", err)
+	}
+
+	return nil
 }
 
 func (a *App) loadImageTexture(url string) (*gdk.Texture, error) {
