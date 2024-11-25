@@ -187,13 +187,24 @@ func (a *App) displayImages(urls []string) {
 				picture.SetVExpand(true)
 				picture.SetContentFit(gtk.ContentFitContain)
 
+				buttonBox := gtk.NewBox(gtk.OrientationHorizontal, 5)
+				buttonBox.SetHAlign(gtk.AlignCenter)
+
 				saveBtn := gtk.NewButtonWithLabel("Save")
 				saveBtn.ConnectClicked(func() {
 					a.saveImage(url)
 				})
 
+				copyBtn := gtk.NewButtonWithLabel("Copy")
+				copyBtn.ConnectClicked(func() {
+					a.copyImageToClipboard(texture)
+				})
+
+				buttonBox.Append(saveBtn)
+				buttonBox.Append(copyBtn)
+
 				imageBox.Append(picture)
-				imageBox.Append(saveBtn)
+				imageBox.Append(buttonBox)
 				imageFrame.SetChild(imageBox)
 				a.imageBox.Append(imageFrame)
 			})
@@ -326,6 +337,12 @@ func (a *App) loadImageTexture(url string) (*gdk.Texture, error) {
 	}
 
 	return texture, nil
+}
+
+func (a *App) copyImageToClipboard(texture *gdk.Texture) {
+	clipboard := gdk.DisplayGetDefault().Clipboard()
+	clipboard.SetTexture(texture)
+	a.setStatus("Image copied to clipboard")
 }
 
 func (a *App) setStatus(message string) {
