@@ -14,7 +14,7 @@ A modern GTK4 desktop application for generating images using the Flux API. Buil
 - Save generated images locally
 - Copy generated images to clipboard
 - Multiple aspect ratios support (1:1, 4:3, 3:4, 16:9, 9:16)
-- Upscaler feature (coming soon)
+- Upscaler feature
 
 ## Prerequisites
 
