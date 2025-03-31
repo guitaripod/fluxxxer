@@ -2,7 +2,7 @@
 
 A modern GTK4 desktop application for generating images using the Flux API. Built with Go and GTK4, featuring a clean, responsive interface.
 
-![image](https://github.com/user-attachments/assets/0c854cbc-7dff-484c-ba03-406c7f025ffb)
+![image](https://github.com/user-attachments/assets/2f34cc96-cb49-43ab-9490-11e11f2b7cca)
 
 ## Features
 
