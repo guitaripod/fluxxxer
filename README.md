@@ -88,7 +88,7 @@ The application will look for the `.env` file in the following locations (in ord
 5. Use the buttons under each generated image to:
    - Save the image locally
    - Copy the image to your clipboard
-   - (Soon) Upscale the image
+   - Upscale the image
 
 ## Project Structure
 
