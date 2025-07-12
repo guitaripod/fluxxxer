@@ -25,7 +25,7 @@ A modern GTK4 desktop application for generating images using the Flux API. Buil
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/marcusziade/fluxxxer.git
+git clone https://github.com/guitaripod/fluxxxer.git
 cd fluxxxer
 ```
 
